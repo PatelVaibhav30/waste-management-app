@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast';
 import "./globals.css";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
+import { getAvailablerewards, getUserByEmail } from "@/utils/db/actions";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,7 +16,24 @@ export default function RootLayout({ children }: Readonly<{
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [totalEarnings, setTotalEarnings] = useState(0);
 
-
+  useEffect(() => {
+    const fetchTotalEarnings = async () => {
+      try {
+        const userEmail = localStorage.getItem("userEmail");
+        if(userEmail){
+          const user = await getUserByEmail(userEmail);
+          if(user){
+            const availableRewards = await getAvailablerewards(user.id) as any;
+            setTotalEarnings(availableRewards)
+          }
+        }
+      }
+      catch (e) {
+        console.error("Error fetching total earnings:", e)
+      }
+    }
+    fetchTotalEarnings()
+  }, [])
 
   return (
     <SessionProvider>
